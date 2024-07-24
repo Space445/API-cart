@@ -1,0 +1,120 @@
+/* General styles for better readability against the background image */
+body {
+    background-image: url('pizzza.jpg');
+    background-size: cover;
+    background-position: center;
+    color: #fff; /* Default text color for readability */
+}
+
+.header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    border-left: 1px solid rgba(255, 255, 255, 0.5);
+    border-right: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.headerTitle {
+    padding: 10px 10px;
+    color: #fff; /* Text color for header */
+}
+
+.incrementBtn,
+.decrementBtn {
+    border-radius: 50%;
+    margin-bottom: 10px;
+    background-color: rgba(255, 255, 255, 0.3); /* Semi-transparent background */
+    color: #fff; /* White text color */
+    border: none; /* Remove default border */
+}
+
+.pizza {
+    padding: 25px;
+    border: 0px solid #fff;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
+    max-width: 615px;
+    margin: 0 auto;
+    font-size: 16px;
+    color: #333;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.pizza:hover {
+    transform: scale(1.2);
+}
+
+.card-image {
+    background-image: url('pizzza.jpg');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    padding: 10px;
+}
+
+.pizzza-image {
+    background-color: rgba(255, 255, 255, 0.8); /* Slightly opaque background */
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.pizzza-image img {
+    width: 100px;
+    height: auto;
+    border-radius: 50%;
+}
+
+.card-image::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5); /* Darker overlay for better contrast */
+    z-index: 1;
+}
+
+.card-image img,
+.card-image a {
+    position: relative;
+    z-index: 2;
+}
+
+.pizza_item {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    transition: transform 0.3s ease-in-out;
+}
+
+.pizza_item:hover {
+    transform: scale(1.03);
+}
+
+.favorite-clicked,
+.favorite-clicked-medium,
+.favorite-clicked-large {
+    animation: pulse 0.3s ease-in-out;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.5);
+    }
+}
+
+[x-cloak] {
+    display: none !important;
+}
+
+.behind-img {
+    background-image: url("pizzza.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+

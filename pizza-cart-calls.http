@@ -1,0 +1,57 @@
+
+GET https://pizza-api.projectcodex.net/api/pizzas
+
+### Create a cart
+GET https://pizza-api.projectcodex.net/api/pizza-cart/create?username=SPACE445
+
+### Get a cart
+GET https://pizza-api.projectcodex.net/api/pizza-cart/SLh1jQw12S/get
+
+
+### Add a pizza to the cart
+POST https://pizza-api.projectcodex.net/api/pizza-cart/add
+Content-Type: application/json
+
+{
+    "cart_code": "SLh1jQw12S",
+    "pizza_id": 1
+}
+
+### Remove from the cart
+
+POST https://pizza-api.projectcodex.net/api/pizza-cart/remove
+Content-Type: application/json
+
+{
+    "cart_code" : "SLh1jQw12S",
+    "pizza_id" : 1
+}
+
+### GET all the carts for a given user
+
+GET https://pizza-api.projectcodex.net/api/pizza-cart/username/SPACE445
+
+### GET all the active carts for a user
+GET https://pizza-api.projectcodex.net/api/pizza-cart/username/SPACE445/active
+
+### Pay for a pizza from the cart
+POST https://pizza-api.projectcodex.net/api/pizza-cart/pay
+content-type: application/json
+
+{
+    "cart_code" : "SLh1jQw12S",
+    "amount" : 400
+}
+
+
+### Featured Items To Get
+GET https://pizza-api.projectcodex.net/api/pizzas/featured?username=SPACE445
+
+##### Set a given pizza id to be featured - max 3 ids
+POST https://pizza-api.projectcodex.net/api/pizzas/featured
+content-type: application/json
+
+{
+    "username": "SPACE445",
+    "pizza_id": 4
+}

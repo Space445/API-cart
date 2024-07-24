@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <script src="index.js"></script>
+    <title>Pizza Widget Using API</title>
+</head>
+<body x-data="pizzaCart" class="bg-gray-900" x-cloak>
+    <div class="container mx-auto p-6 text-gray-100">
+        <div class="text-center font-bold my-8">
+            <h1 x-text="header" class="text-4xl"></h1>
+        </div>
+
+        <div class="bg-gray-800 rounded p-6 mb-10">
+            <fieldset class="py-3 flex items-center justify-center">
+                <div class="flex flex-col items-center py-4 px-6 bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+                    <label for="username" class="block text-gray-300 font-semibold mb-2">Username:</label>
+                    <input 
+                        id="username"
+                        class="w-full px-4 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-900 text-gray-100" 
+                        type="text" 
+                        x-model="username"
+                    >
+                    <div class="flex space-x-4 mt-4">
+                        <button @click="login" 
+                            class="bg-green-600 py-2 px-4 rounded-lg font-bold hover:bg-green-800" 
+                            x-show="username"
+                        >
+                            Login
+                        </button>
+                        <button @click="logout" 
+                            class="bg-red-600 py-2 px-4 rounded-lg font-bold hover:bg-red-800" 
+                            x-show="username && cardId"
+                        >
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+
+            <div class="flex items-center justify-center py-10" x-show="cardId">
+                <div class="flex flex-col items-center py-4 px-6 bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+                    <label class="block text-gray-300 font-semibold mb-2">Cart code:</label> 
+                    <span x-text="cardId"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gray-800 p-6 rounded mb-10" x-show="username && cardId">
+            <div class="text-center mb-10">
+                <h1 x-text="title" class="font-bold text-2xl"></h1>
+            </div>
+
+            <div class="flex justify-center mb-4" x-show="showHistoricalOrdersButton">
+                <button @click="toggleHistoricalOrders" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-800">
+                    Slip
+                </button>
+            </div>
+
+            <div x-show="showHistoricalOrders" class="overflow-x-auto mb-6">
+                <h2 class="text-xl font-semibold mb-2 text-center">Order History</h2>
+                <table class="min-w-full bg-gray-700 border border-gray-600">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-2 border-b">Order Date</th>
+                            <th class="px-4 py-2 border-b">Pizzas</th>
+                            <th class="px-4 py-2 border-b">Price</th>
+                            <th class="px-4 py-2 border-b">Items</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template x-for="order in historicalOrders" :key="order.id">
+                            <tr class="bg-gray-600 hover:bg-gray-500">
+                                <td class="px-4 py-2 border-b" x-text="order.date"></td>
+                                <td class="px-4 py-2 border-b">
+                                    <ul>
+                                        <template x-for="pizza in order.pizzas" :key="pizza.id">
+                                            <li x-text="pizza.flavour"></li>
+                                        </template>
+                                    </ul>
+                                </td>
+                                <td class="px-4 py-2 border-b">
+                                    <ul>
+                                        <template x-for="pizza in order.pizzas" :key="pizza.id">
+                                            <li x-text="pizza.price"></li>
+                                        </template>
+                                    </ul>
+                                </td>
+                                <td class="px-4 py-2 border-b">
+                                    <ul>
+                                        <template x-for="pizza in order.pizzas" :key="pizza.id">
+                                            <li x-text="pizza.qty"></li>
+                                        </template>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="4" class="px-4 py-2 border-b">Total</th>
+                            <td colspan="2" class="font-bold">
+                                <ul>
+                                    <template x-for="order in historicalOrders" :key="order.id">
+                                        <li>R<span x-text="order.total.toFixed(2)"></span></li>
+                                    </template>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="row">
+                <div class="col s12 l12">
+                    <div x-show="message"
+                        class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-transform" 
+                        x-transition:enter="transition ease-out duration-300" 
+                        x-transition:enter-start="translate-y-full opacity-0" 
+                        x-transition:enter-end="translate-y-0 opacity-100" 
+                        x-transition:leave="transition ease-in duration-300" 
+                        x-transition:leave-start="translate-y-0 opacity-100" 
+                        x-transition:leave-end="translate-y-full opacity-0"
+                        x-text="message"
+                    ></div>
+
+                    <table class="min-w-full bg-gray-700 border border-gray-600">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-2 border-b">Flavour</th>
+                                <th class="px-4 py-2 border-b">Size</th>
+                                <th class="px-4 py-2 border-b">Price</th>
+                                <th class="px-4 py-2 border-b">Item</th>
+                                <th class="px-4 py-2 border-b">Total</th>
+                                <th class="px-4 py-2 border-b">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="pizza in cartPizzas" :key="pizza.id">
+                                <tr>
+                                    <td class="px-4 py-2 border-b" x-text="pizza.flavour"></td>
+                                    <td class="px-4 py-2 border-b" x-text="pizza.size"></td>
+                                    <td class="px-4 py-2 border-b">R<span x-text="pizza.price"></span></td>
+                                    <td class="px-4 py-2 border-b" x-text="pizza.qty"></td>
+                                    <td class="px-4 py-2 border-b">R<span x-text="pizza.total.toFixed(2)"></span></td>
+                                    <td class="px-4 py-2 border-b">
+                                        <button x-on:click="addPizzaToCart(pizza.id)" 
+                                                class="bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-800">
+                                            +
+                                        </button>
+                                        <button x-on:click="removePizzaFromCart(pizza.id)"
+                                                class="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-800">
+                                            -
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4" class="px-4 py-2 border-b"><strong>Total</strong></td>
+                                <td colspan="2" class="px-4 py-2 border-b font-bold">R<span x-text="cartTotal"></span></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="px-4 py-2 border-b"><strong>Proceed to payment:</strong></td>
+                                <td class="px-4 py-2 border-b">
+                                    <input x-model="paymentAmount" type="number"
+                                            class="w-full py-2 text-sm rounded-md border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-900 text-gray-100">
+                                </td>
+                                <td class="px-4 py-2 border-b">
+                                    <button x-on:click="payForCart()"
+                                        class="bg-green-600 text-white py-2 px-6 font-bold rounded-lg hover:bg-green-800">
+                                        Pay required ammount
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="6" class="px-4 py-2 border-b">
+                                    <strong>It doesnt matter what you pick, the pizzas are all outstanding</strong>
+                                    <span x-text="paymentMessage"></span>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gray-800 p-6 rounded" x-show="username && cardId">
+            <div class="flex flex-wrap justify-center">
+                <template x-for="pizza in featuredPizzas" :key="pizza.id">
+                    <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2 mb-4">
+                        <div class="bg-gray-700 border border-gray-600 rounded-lg shadow-lg overflow-hidden">
+                            <img src="pizza.jpg" alt="small pizza" class="w-full h-48 object-cover">
+                            <div class="p-4">
+                                <div class="mb-2">
+                                    <span x-text="pizza.size" class="text-3xl font-semibold text-gray-100"></span>
+                                </div>
+                                <div class="text-xl font-bold pb-2 text-gray-100">R<span x-text="pizza.price"></span></div>
+                                <p x-html="pizza.flavour" class="bg-gray-600 p-4 my-6 rounded font-semibold text-gray-100"></p>
+                            </div>
+                            <div class="flex justify-center p-4">
+                                <button x-on:click="addPizzaToCart(pizza.id)" 
+                                        class="bg-red-600 font-bold text-xl px-20 py-2 rounded hover:bg-red-800 text-white transition duration-200">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <div class="col s12 l4 behind-img">
+                <template x-for="(pizza, index) in pizzas" :key="pizza.id">
+                    <div :class="index % 2 === 0 ? 'bg-gray-600' : 'bg-gray-700'" class="flex mx-5 mb-4 p-4 rounded-lg items-center pizza_item">
+                        <img class="w-24 h-24 object-cover square-full" src="pizza.jpg" alt="Pizza Image">
+                        <div class="flex flex-col justify-center ml-6">
+                            <div class="flex items-center">
+                                <h5 class="text-lg font-semibold text-gray-100 mr-4" x-text="pizza.flavour"></h5>
+                                <button x-on:click="toggleFavorite(pizza.id); addfavorite(pizza.id)" 
+                                   :class="pizza.isFavorite ? 'bg-red-600 text-white' : 'bg-gray-500 text-white'"
+                                   class="p-2 rounded-full cursor-pointer transition duration-200">
+                                </button>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h5 class="text-lg font-semibold text-gray-100" x-text="pizza.size"></h5>
+                        </div>
+                        <div class="inline-flex items-center">
+                            <button x-on:click="addPizzaToCart(pizza.id)"
+                                class="bg-gray-500 font-semibold text-white px-4 py-2 incrementBtn hover:bg-gray-700 transition duration-200">
+                                +
+                            </button>
+                            <button x-on:click="removePizzaFromCart(pizza.id)"
+                                class="bg-gray-500 font-semibold text-white px-4 py-2 incrementBtn hover:bg-gray-700 transition duration-200 ml-2">
+                                -
+                            </button>
+                        </div>
+                        <div class="text-right mr-4">
+                            <span class="text-lg font-semibold text-gray-100">R<span x-text="pizza.price"></span></span>
+                        </div>
+                        <div>
+                            <button x-on:click="addPizzaToCart(pizza.id)"
+                                class="bg-green-400 text-white font-semibold py-2 px-10 rounded-lg hover:bg-green-400">
+                                Purchase
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
